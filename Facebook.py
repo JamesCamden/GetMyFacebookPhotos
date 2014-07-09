@@ -29,8 +29,12 @@ class Facebook():
         print "Successfully logged in!"
 	body.find("<li class=\"navItem firstItem tinyman litestandNavItem\">")
 	body = body[body.find("<li class=\"navItem firstItem tinyman litestandNavItem\">"):]
-	body = body[body.find("https://www.facebook.com/profile.php?id="):]
-	self.user.profileId = body[len("https://www.facebook.com/profile.php?id="):body.find("&amp;ref=tn_tnmn")]
+	body = body[body.find("profile_pic_header_"):]
+	body = body[len("profile_pic_header_"):]
+        self.user.profileId = body[:body.find("\"")]
+	if self.user.profileId == "":
+	    raise Exception("Unable to identify profile id.")
+	print "Profile id: " + self.user.profileId
 
     def getFirstPhotoId(self):
         url = 'https://www.facebook.com/profile.php?id=' + self.user.profileId + '&sk=photos'
@@ -38,16 +42,23 @@ class Facebook():
 	body = usock.read()
 	body = body[body.find('<i style="background-image: url(https://'):]
 	body = body[40:body.find(');"')]
-	return body.split('_')[1]
+	body = body.split('_')[1]
+	return body
 
     def getPhotoSetId(self):
+	'''
 	url = 'https://www.facebook.com/profile.php?id=' + self.user.profileId + '&sk=photos'
 	usock = self.opener.open(url)
 	body = usock.read()
 	body = body[body.find('<noscript><meta http-equiv="refresh" content="0; URL=/profile.php?id='):]
 	body = body[len('<noscript><meta http-equiv="refresh" content="0; URL=/profile.php?id='):]
 	body = body[:9]
+	if body == "":
+	    raise Exception("Unable to identify set id.")
+	print "set id: " + body
 	return body
+	'''
+	return self.user.profileId
 
     def downloadPhotos(self, firstPhotoId, photoSetId):
 	photoId = firstPhotoId
